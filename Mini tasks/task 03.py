@@ -1,1 +1,1 @@
-print(*[list(map(float, line.split())) for line in input().split(' | ')], sep='\n')
+print(*[list(map(float, line.split())) for line in input().split('|')], sep='\n')
