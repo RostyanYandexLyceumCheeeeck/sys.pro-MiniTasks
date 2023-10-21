@@ -17,4 +17,5 @@ def flatten(start: list, finish: None | list = None) -> list:
     return finish
 
 
-print(flatten([1, 2, [3, [4, [5, 6, 7]]]]))
+if __name__ == "__main__":
+    print(flatten([1, 2, [3, [4, [5, 6, 7]]]]))

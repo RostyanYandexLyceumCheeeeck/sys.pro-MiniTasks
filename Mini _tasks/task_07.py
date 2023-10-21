@@ -29,17 +29,18 @@ def flatten(start: list, finish: None | list = None, depth: int | None = None) -
     return finish
 
 
-x = [0]
-print(flatten([1, 2, [4, 5], [6, [7, [8]]], 9], x, depth=2))
-print(x)
-print(flatten([1, 2, [4, 5], [6, [7, [8]]], 9], depth=2))
+if __name__ == "__main__":
+    x = [0]
+    print(flatten([1, 2, [4, 5], [6, [7, [8]]], 9], x, depth=2))
+    print(x)
+    print(flatten([1, 2, [4, 5], [6, [7, [8]]], 9], depth=2))
 
-print()
+    print()
 
-print(flatten([1, 2, [4, 5], [6, [7, [8]]], 9], x, depth=2))
-print(x)
+    print(flatten([1, 2, [4, 5], [6, [7, [8]]], 9], x, depth=2))
+    print(x)
 
-print()
+    print()
 
-y = flatten([1, 2, [4, 5], [6, [7, [8]]], 9], depth=2)
-print(y)
+    y = flatten([1, 2, [4, 5], [6, [7, [8]]], 9], depth=2)
+    print(y)

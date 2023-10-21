@@ -27,14 +27,15 @@ def specialize(func, *args, **kwargs):
     return posrednik
 
 
-x = specialize(foo, two=7)
-y = specialize(foo, 10, 2)
-w = specialize(baz, 20, three=79)
-z = specialize(baz, two=79, three=7770)
+if __name__ == '__main__':
+    x = specialize(foo, two=7)
+    y = specialize(foo, 10, 2)
+    w = specialize(baz, 20, three=79)
+    z = specialize(baz, two=79, three=7770)
 
-print(x(10))
-print(y())
-print(w(30))
-print(z(30))
+    print(x(10))
+    print(y())
+    print(w(30))
+    print(z(30))
 
 
