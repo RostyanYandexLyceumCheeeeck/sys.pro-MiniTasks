@@ -4,7 +4,7 @@ class LRUCache:
         self.cache = {}
 
     def put(self, key, value):
-        if self.get(key) is None and len(self.cache) == self.capacity:
+        if self.get(key) is None and len(self.cache) == self.capacity and key not in self.cache:
             del self.cache[self.cache.__iter__().__next__()]
         self.cache[key] = value
 
