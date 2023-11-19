@@ -1,11 +1,11 @@
 class LRUCache:
-    def __init__(self, capacity=16):
-        self.capacity = capacity
+    def __init__(self, capacity: int = 16):
+        self.capacity: int = capacity
         self.cache = {}
 
     def put(self, key, value):
         if self.get(key) is None and len(self.cache) == self.capacity and key not in self.cache:
-            del self.cache[self.cache.__iter__().__next__()]
+            del self.cache[next(iter(self.cache))]
         self.cache[key] = value
 
     def get(self, key):
