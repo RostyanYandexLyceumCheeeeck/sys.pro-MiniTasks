@@ -1,21 +1,29 @@
 T = list | tuple
 
 
-def my_ljust(st, size: int):
-    return f" {st}".ljust(size)
+def my_center(st, size: int):
+    return f"{st}".center(size)
+
+
+def my_print(*args):
+    print("", *args, "", sep='|')
 
 
 def format_table(benchmarks: T, algos: T, results: T):
-    res_str = [str(elem) for res in results for elem in res]
-    size = len(f"{max('Benchmark', *benchmarks, *algos, *res_str, key=len)}") + 2
+    # sizes
+    sizes = []
+    header_size = len(max('Benchmark', *benchmarks, key=len)) + 2
+    for ind in range(len(algos)):
+        column = [len(str(elem[ind])) for elem in results]
+        sizes.append(max(len(algos[ind]), max(column)) + 2)
 
     # Header
-    print("", my_ljust("Benchmark", size), *[my_ljust(algo, size) for algo in algos], "", sep='|')
-    print("|", "-" * (size * (len(algos) + 1) + len(algos)), "|", sep='')
+    my_print(my_center("Benchmark", header_size), *[my_center(algos[ind], sizes[ind]) for ind in range(len(algos))])
+    my_print("-" * (sum(sizes) + header_size + len(algos)))
 
     # Body
-    for i_bench in range(len(benchmarks)):
-        print("", my_ljust(benchmarks[i_bench], size), *[my_ljust(el, size) for el in results[i_bench]], "", sep='|')
+    for ind in range(len(benchmarks)):
+        my_print(my_center(benchmarks[ind], header_size), *[my_center(e, sizes[j]) for j, e in enumerate(results[ind])])
 
 
 if __name__ == "__main__":

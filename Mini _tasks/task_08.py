@@ -5,24 +5,18 @@ def deprecated(func=None, *, since: str | None = None, will_be_removed: str | No
     if func is None:
         return specialize(deprecated, since=since, will_be_removed=will_be_removed)
 
-    if since and will_be_removed:
-        print(f"Warning: function {func.__name__} is deprecated since version {since}. "
-              f"It will be removed in version {will_be_removed}.")
-    elif since:
-        print(f"Warning: function {func.__name__} is deprecated since version {since}. "
-              f"It will be removed in future versions.")
-    elif will_be_removed:
-        print(f"Warning: function {func.__name__} is deprecated. "
-              f"It will be removed in version {will_be_removed}.")
-    else:
-        print(f"Warning: function {func.__name__} is deprecated. It will be removed in future versions.")
+    st_since = f" since version {since}" if since else ""
+    st_will = f"version {will_be_removed}." if will_be_removed else "future versions."
+
+    print(f"Warning: function {func.__name__} is deprecated{st_since}. " 
+          f"It will be removed in {st_will}")
 
     def posrednik(*first_args, **first_kwargs):
         return func(*first_args, **first_kwargs)
     return posrednik
 
 
-@deprecated(since='123', will_be_removed='qwe')
+@deprecated(since='123', will_be_removed=None)
 def foo():
     print('hello, World!')
 
