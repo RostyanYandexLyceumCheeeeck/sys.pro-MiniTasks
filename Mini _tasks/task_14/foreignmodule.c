@@ -37,7 +37,6 @@ static PyObject *foreign_matrix_power(PyObject *self, PyObject *args) {
                     res += one * two;
                 }
                 mas[i][j] = res;
-                PyObject_Print(PyObject_Str(lst), stdout, 0);
             }
         }
 
@@ -54,7 +53,7 @@ static PyObject *foreign_matrix_power(PyObject *self, PyObject *args) {
 static PyMethodDef ForeignMethods[] = {
     {"foreign_matrix_power",
      foreign_matrix_power, METH_VARARGS,
-     "Matrix exponentiation function from C code."
+     "Function for raising a square matrix to a power from C code."
     },
     {NULL, NULL, 0, NULL}   /* Sentinel */
 };
