@@ -1,1 +1,1 @@
- PYTHONPATH=$(find ./build/ -maxdepth 1 -mindepth 1 -type d | tr "\n" ":" | sed "s/:$//") python3 task_14.py
+PYTHONPATH=$(find ./build/ -maxdepth 1 -mindepth 1 -type d | tr "\n" ":" | sed "s/:$//") python3 ../task_14.py
