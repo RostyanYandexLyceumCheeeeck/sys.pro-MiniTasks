@@ -13,31 +13,28 @@ static PyObject *foreign_matrix_power(PyObject *self, PyObject *args) {
     list_length = PyObject_Length(obj_list);
 
     double copy[list_length][list_length];
+    double mas[list_length][list_length];
     for (int i = 0; i < list_length; i++) {
         PyObject *lst = PyList_GetItem(obj_list, i);
         for (int j = 0; j < list_length; j++) {
             PyObject *item = PyList_GetItem(lst, j);
             double el = PyFloat_AsDouble(item);
             copy[i][j] = el;
+            mas[i][j] = el;
         }
     }
 
-    double mas[list_length][list_length];
     for (int c = 0; c < degree - 1; c++) {
         for (int i = 0; i < list_length; i++) { /* stroki */
-            PyObject *lst = PyList_GetItem(obj_list, i);
-
+            double str[list_length];
             for (int j = 0; j < list_length; j++) { /* stolbtci */
                 double res = 0;
-                for (int k = 0; k < list_length; k++) { /* elementi */
-                    PyObject *tmp = PyList_GetItem(lst, k);
-
-                    double one = PyFloat_AsDouble(tmp);
-                    double two = copy[k][j];
-                    res += one * two;
-                }
-                mas[i][j] = res;
+                for (int k = 0; k < list_length; k++) /* elementi */
+                    res += mas[i][k] * copy[k][j];
+                str[j] = res;
             }
+            for (int j = 0; j < list_length; j++) /* stolbtci */
+                mas[i][j] = str[j];
         }
 
         for (int i = 0; i < list_length; i++) {
