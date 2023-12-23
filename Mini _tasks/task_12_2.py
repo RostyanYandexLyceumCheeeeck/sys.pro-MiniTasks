@@ -1,22 +1,6 @@
-def chain(lst_obj: list | tuple):
-    class IteratorToIterators:
-        def __init__(self, its):
-            self._iterators = its
-            self._ptr = 0
-
-        def __iter__(self):
-            return self
-
-        def __next__(self):
-            try:
-                return next(self._iterators[self._ptr])
-            except StopIteration:
-                self._ptr += 1
-                if self._ptr == len(self._iterators):
-                    raise StopIteration
-                return next(self._iterators[self._ptr])
-
-    return IteratorToIterators(lst_obj)
+def chain(lst_iter: list | tuple):
+    for elem in lst_iter:
+        yield from elem
 
 
 if __name__ == "__main__":

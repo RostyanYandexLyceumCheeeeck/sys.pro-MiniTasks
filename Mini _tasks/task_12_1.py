@@ -2,22 +2,8 @@ import copy
 
 
 def cycle(obj):
-    class Clone:
-        def __init__(self, it):
-            self._iterator = it
-            self._copy = copy.copy(it)
-
-        def __iter__(self):
-            return self
-
-        def __next__(self):
-            try:
-                return next(self._copy)
-            except StopIteration:
-                self._copy = copy.copy(self._iterator)
-                return next(self._copy)
-
-    return Clone(obj)
+    while True:
+        yield from obj
 
 
 if __name__ == "__main__":
