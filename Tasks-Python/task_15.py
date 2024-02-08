@@ -6,7 +6,7 @@ import numpy as np
 import time
 import copy
 
-SIZE = 1024
+SIZE = 32
 GENERATIONS = 128
 history = []
 ind = 0

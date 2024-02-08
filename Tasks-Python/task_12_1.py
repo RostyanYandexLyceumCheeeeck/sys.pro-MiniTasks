@@ -1,6 +1,3 @@
-import copy
-
-
 def cycle(obj):
     while True:
         yield from obj
