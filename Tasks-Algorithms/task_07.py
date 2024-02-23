@@ -65,9 +65,12 @@ def test2():
     start_ygl(two_copy)
     start_ygl(three_copy)
 
-    srav(one_copy, one)
-    srav(two_copy, two)
-    srav(three_copy, three)
+    if not srav(one_copy, one):
+        print("NOOOO111!")
+    if not srav(two_copy, two):
+        print("NOOOO222!")
+    if not srav(three_copy, three):
+        print("NOOOO333!")
 
 
 def merge_ygl(arr: list[int], l: int, r: int, d1: int, d2: int, buffer: int):
