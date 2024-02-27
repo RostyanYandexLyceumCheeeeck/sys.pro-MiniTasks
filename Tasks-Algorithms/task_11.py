@@ -1,3 +1,4 @@
+# https://leetcode.com/problems/sort-colors/submissions/1188089877
 from random import randint
 
 factory = lambda x: [randint(0, 2) for _ in range(x)]
