@@ -45,6 +45,6 @@ def LSD_sort(arr: list[str]):
     return arr
 
 
-if __name__ == "__main__"
+if __name__ == "__main__":
     base_test()
     test1()
