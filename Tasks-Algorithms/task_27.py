@@ -33,7 +33,6 @@ class FreqStack:
         self.cache[res] -= 1
 
         if self.stack[self.count_max].peek() is None:
-            del self.stack[self.count_max]
             self.count_max -= 1
         return res
 
