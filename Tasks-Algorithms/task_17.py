@@ -52,11 +52,11 @@ def reverseBetween(head, left: int, right: int):
     head = head.next
     count += 1
     while count <= right:
-        temp = copy(head)
-        ptr.next = temp.next
-        temp.next = start.next
-        start.next = temp
-        head = head.next
+        temp = head.next
+        ptr.next = temp
+        head.next = start.next
+        start.next = head
+        head = temp
         count += 1
 
     return new_head if left > 1 else new_head.next

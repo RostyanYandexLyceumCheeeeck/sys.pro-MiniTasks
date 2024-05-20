@@ -3,10 +3,12 @@ import time
 import pprint
 import copy
 
+
 T = list[list[int]]
 t = tuple[int, int]
 lt = list[t, t]
 ltN = lt | None
+size_classic = 1
 
 
 def base_test():
@@ -29,14 +31,97 @@ def base_test():
 
 def test1():
     for n in range(1, 65):
-        basis = lambda _: [randint(-10000, 10000) for _ in range(n)]
-        one = [basis(_) for _ in range(n)]
-        two = [basis(_) for _ in range(n)]
+        one, two = generate_test(n)
 
         res_classic = classic(one, two)
         res_recurse = recursive(one, two)
         res_Strassen = start_Strassen(one, two)
         assert res_classic == res_recurse == res_Strassen
+
+
+def generate_test(n):
+    basis = lambda _: [randint(-10000, 10000) for _ in range(n)]
+    one = [basis(_) for _ in range(n)]
+    two = [basis(_) for _ in range(n)]
+    return one, two
+
+
+def exec_time_algo(*args, algo=None):
+    count_run = randint(3, 11)
+    durations = [[], [], []]
+    for i in range(count_run):
+        ts = time.time()
+        algo(*args)
+        fs = time.time() - ts
+
+        for j in range(len(durations)):
+            durations[j].append(fs)
+
+    sample = sum(durations[0]) / count_run
+    standard = (sum([(x - sample) ** 2 for x in durations[1]]) / count_run) ** 0.5
+
+    geometric = 1
+    for i in durations[2]:
+        geometric *= i
+    geometric = geometric ** (1/count_run)
+
+    return sample, standard, geometric
+
+
+def stand():
+    global gg_end, size_classic
+
+    bench = []
+    algos = ["classic", "recursive", "Strassen", "size_classic"]
+    results = [[]]
+
+    name_bench = lambda x: f"size {x}x{x}"
+
+    size = 1
+    optional = 3
+    funcs = [classic, recursive, Strassen]
+    while optional:
+        durations = []
+        one, two = generate_test(size)
+        for func in funcs:
+            times_func = exec_time_algo(one, two, algo=func)
+            durations.append(times_func)
+            results[-1].append("  ".join([format(x, '.6f') for x in times_func]))
+        results[-1].append(str(size_classic))
+        results.append([])
+
+        if all([durations[-1][i] < min(durations[0][i], durations[1][i]) for i in range(3)]):
+            optional -= 1
+        elif size > 256:
+            size_classic <<= 1
+        bench.append(name_bench(size))
+        size <<= 1
+
+    gg_end = time.time()
+    results.pop()
+    format_table(bench, algos, results)
+
+
+def addition_matrix2(first_matrix: T, second_matrix: T, pointers: ltN = None, ends: ltN = None,
+                     sign: int = 1, multi: int = 1) -> T:
+    if pointers is None:
+        pointers = [(0, 0), (0, 0)]
+    if ends is None:
+        ends = [(len(first_matrix), len(first_matrix[0])), (len(second_matrix), len(second_matrix[0]))]
+
+    lns = [(ends[0][0] - pointers[0][0], ends[0][1] - pointers[0][1]),   # sizes first matrix
+           (ends[1][0] - pointers[1][0], ends[1][1] - pointers[1][1])]   # sizes second matrix
+
+    result = []
+    for i in range(lns[0][0]):
+        i_f, i_s = i + pointers[0][0], i + pointers[1][0]
+        line = []
+
+        for j in range(lns[0][1]):
+            j_f, j_s = j + pointers[0][1], j + pointers[1][1]
+            line.append(multi * (first_matrix[i_f][j_f] + sign * second_matrix[i_s][j_s]))
+        result.append(line)
+    return result
 
 
 def addition_matrix(first_matrix: T, second_matrix: T, pointers: ltN = None, ends: ltN = None,
@@ -121,28 +206,28 @@ def recursive(first_matrix: T, second_matrix: T, pointers: ltN = None, ends: ltN
     G = [(mids_i[1], pointers[1][1]), (ends[1][0], mids_j[1])]
     H = [(mids_i[1], mids_j[1]), ends[1]]
 
-    left_up = addition_matrix(first_matrix=recursive(first_matrix, second_matrix,  # AE
+    left_up = addition_matrix2(first_matrix=recursive(first_matrix, second_matrix,  # AE
                                                      pointers=[A[0], E[0]],
                                                      ends=[A[1], E[1]]),
                               second_matrix=recursive(first_matrix, second_matrix,  # BG
                                                       pointers=[B[0], G[0]],
                                                       ends=[B[1], G[1]]))
 
-    left_bottom = addition_matrix(first_matrix=recursive(first_matrix, second_matrix,  # CE
+    left_bottom = addition_matrix2(first_matrix=recursive(first_matrix, second_matrix,  # CE
                                                          pointers=[C[0], E[0]],
                                                          ends=[C[1], E[1]]),
                                   second_matrix=recursive(first_matrix, second_matrix,  # DG
                                                           pointers=[D[0], G[0]],
                                                           ends=[D[1], G[1]]))
 
-    right_up = addition_matrix(first_matrix=recursive(first_matrix, second_matrix,  # AF
+    right_up = addition_matrix2(first_matrix=recursive(first_matrix, second_matrix,  # AF
                                                       pointers=[A[0], F[0]],
                                                       ends=[A[1], F[1]]),
                                second_matrix=recursive(first_matrix, second_matrix,  # BH
                                                        pointers=[B[0], H[0]],
                                                        ends=[B[1], H[1]]))
 
-    right_bottom = addition_matrix(first_matrix=recursive(first_matrix, second_matrix,  # CF
+    right_bottom = addition_matrix2(first_matrix=recursive(first_matrix, second_matrix,  # CF
                                                           pointers=[C[0], F[0]],
                                                           ends=[C[1], F[1]]),
                                    second_matrix=recursive(first_matrix, second_matrix,  # DH
@@ -167,7 +252,7 @@ def Strassen(first_matrix: T, second_matrix: T, pointers: ltN = None, ends: ltN 
     lns = [(ends[0][0] - pointers[0][0], ends[0][1] - pointers[0][1]),   # sizes first matrix
            (ends[1][0] - pointers[1][0], ends[1][1] - pointers[1][1])]   # sizes second matrix
 
-    if min(lns[0]) == 1 or min(lns[1]) == 1:
+    if min(lns[0]) <= size_classic or min(lns[1]) <= size_classic:
         return classic(first_matrix, second_matrix, pointers, ends)
 
     mids_i = [pointers[0][0] + lns[0][0] // 2, pointers[1][0] + lns[1][0] // 2]  # middles lines
@@ -185,7 +270,7 @@ def Strassen(first_matrix: T, second_matrix: T, pointers: ltN = None, ends: ltN 
     H = [(mids_i[1], mids_j[1]), ends[1]]
 
     P1 = Strassen(first_matrix=first_matrix,                                 # A
-                  second_matrix=addition_matrix(first_matrix=second_matrix,  # (F - H) matrix
+                  second_matrix=addition_matrix2(first_matrix=second_matrix,  # (F - H) matrix
                                                 second_matrix=second_matrix,
                                                 pointers=[F[0], H[0]],
                                                 ends=[F[1], H[1]],
@@ -196,7 +281,7 @@ def Strassen(first_matrix: T, second_matrix: T, pointers: ltN = None, ends: ltN 
                        ]
                   )
 
-    P2 = Strassen(first_matrix=addition_matrix(first_matrix=first_matrix,  # (A + B) matrix
+    P2 = Strassen(first_matrix=addition_matrix2(first_matrix=first_matrix,  # (A + B) matrix
                                                second_matrix=first_matrix,
                                                pointers=[A[0], B[0]],
                                                ends=[A[1], B[1]]),
@@ -207,7 +292,7 @@ def Strassen(first_matrix: T, second_matrix: T, pointers: ltN = None, ends: ltN 
                        ]
                   )
 
-    P3 = Strassen(first_matrix=addition_matrix(first_matrix=first_matrix,  # (C + D) matrix
+    P3 = Strassen(first_matrix=addition_matrix2(first_matrix=first_matrix,  # (C + D) matrix
                                                second_matrix=first_matrix,
                                                pointers=[C[0], D[0]],
                                                ends=[C[1], D[1]]),
@@ -219,7 +304,7 @@ def Strassen(first_matrix: T, second_matrix: T, pointers: ltN = None, ends: ltN 
                   )
 
     P4 = Strassen(first_matrix=first_matrix,                                 # D
-                  second_matrix=addition_matrix(first_matrix=second_matrix,  # (G - E) matrix
+                  second_matrix=addition_matrix2(first_matrix=second_matrix,  # (G - E) matrix
                                                 second_matrix=second_matrix,
                                                 pointers=[G[0], E[0]],
                                                 ends=[G[1], E[1]],
@@ -230,46 +315,46 @@ def Strassen(first_matrix: T, second_matrix: T, pointers: ltN = None, ends: ltN 
                        ]
                   )
 
-    P5 = Strassen(first_matrix=addition_matrix(first_matrix=first_matrix,  # (A + D) matrix
+    P5 = Strassen(first_matrix=addition_matrix2(first_matrix=first_matrix,  # (A + D) matrix
                                                second_matrix=first_matrix,
                                                pointers=[A[0], D[0]],
                                                ends=[A[1], D[1]]),
-                  second_matrix=addition_matrix(first_matrix=second_matrix,  # (E + H) matrix
+                  second_matrix=addition_matrix2(first_matrix=second_matrix,  # (E + H) matrix
                                                 second_matrix=second_matrix,
                                                 pointers=[E[0], H[0]],
                                                 ends=[E[1], H[1]]),
                   )
 
-    P6 = Strassen(first_matrix=addition_matrix(first_matrix=first_matrix,  # (B - D) matrix
+    P6 = Strassen(first_matrix=addition_matrix2(first_matrix=first_matrix,  # (B - D) matrix
                                                second_matrix=first_matrix,
                                                pointers=[B[0], D[0]],
                                                ends=[B[1], D[1]],
                                                sign=-1),
-                  second_matrix=addition_matrix(first_matrix=second_matrix,  # (G + H) matrix
+                  second_matrix=addition_matrix2(first_matrix=second_matrix,  # (G + H) matrix
                                                 second_matrix=second_matrix,
                                                 pointers=[G[0], H[0]],
                                                 ends=[G[1], H[1]]),
                   )
 
-    P7 = Strassen(first_matrix=addition_matrix(first_matrix=first_matrix,  # (A - C) matrix
+    P7 = Strassen(first_matrix=addition_matrix2(first_matrix=first_matrix,  # (A - C) matrix
                                                second_matrix=first_matrix,
                                                pointers=[A[0], C[0]],
                                                ends=[A[1], C[1]],
                                                sign=-1),
-                  second_matrix=addition_matrix(first_matrix=second_matrix,  # (E + F) matrix
+                  second_matrix=addition_matrix2(first_matrix=second_matrix,  # (E + F) matrix
                                                 second_matrix=second_matrix,
                                                 pointers=[E[0], F[0]],
                                                 ends=[E[1], F[1]])
                   )
 
-    Q1 = addition_matrix(first_matrix=addition_matrix(first_matrix=P5, second_matrix=P4),
-                         second_matrix=addition_matrix(first_matrix=P2, second_matrix=P6, sign=-1),
+    Q1 = addition_matrix2(first_matrix=addition_matrix2(first_matrix=P5, second_matrix=P4),
+                         second_matrix=addition_matrix2(first_matrix=P2, second_matrix=P6, sign=-1),
                          sign=-1)
 
-    Q2 = addition_matrix(first_matrix=P1, second_matrix=P2)
-    Q3 = addition_matrix(first_matrix=P3, second_matrix=P4)
-    Q4 = addition_matrix(first_matrix=addition_matrix(first_matrix=P1, second_matrix=P5),
-                         second_matrix=addition_matrix(first_matrix=P3, second_matrix=P7),
+    Q2 = addition_matrix2(first_matrix=P1, second_matrix=P2)
+    Q3 = addition_matrix2(first_matrix=P3, second_matrix=P4)
+    Q4 = addition_matrix2(first_matrix=addition_matrix2(first_matrix=P1, second_matrix=P5),
+                         second_matrix=addition_matrix2(first_matrix=P3, second_matrix=P7),
                          sign=-1)
 
     a, b = lns[0][0] // 2, (lns[0][0] + 1) // 2
@@ -324,6 +409,38 @@ def degree2app(matrix: T):
     return max(ost * 2 * res, len(matrix))
 
 
+# =================================== !!! COPY PASTE FROM task_09 FROM Tasks-Python !!! ================================
+F = list | tuple
+
+
+def my_center(st, size: int):
+    return f"{st}".center(size)
+
+
+def my_print(*args):
+    print("", *args, "", sep='|')
+
+
+def format_table(benchmarks: F, algos: F, results: F):
+    # sizes
+    sizes = []
+    header_size = len(max('Benchmark', *benchmarks, key=len)) + 2
+    for ind in range(len(algos)):
+        column = [len(str(elem[ind])) for elem in results]
+        sizes.append(max(len(algos[ind]), max(column)) + 2)
+
+    # Header
+    my_print(my_center("Benchmark", header_size), *[my_center(algos[ind], sizes[ind]) for ind in range(len(algos))])
+    my_print("-" * (sum(sizes) + header_size + len(algos)))
+
+    # Body
+    for ind in range(len(benchmarks)):
+        my_print(my_center(benchmarks[ind], header_size), *[my_center(e, sizes[j]) for j, e in enumerate(results[ind])])
+# ======================================================================================================================
+
+
+gg_start = 0
+gg_end = 0
 if __name__ == "__main__":
     debug = False
     if debug:
@@ -332,15 +449,37 @@ if __name__ == "__main__":
                [1, 2, 3, 4, 5],
                [1, 2, 3, 4, 5],
                [1, 2, 3, 4, 5]]
-        tt = addition_matrix(first_matrix=rty,
+        tt = addition_matrix2(first_matrix=rty,
                              second_matrix=rty,
                              pointers=[(0, 2), (2, 2)],
-                             ends=[(2, 5), (5, 5)],
+                             ends=[(2, 5), (2, 5)],
                              sign=-1)
         print(tt)
     else:
-        base_test()
-        test1()
+        # base_test()
+        # test1()
+
+        gg_start = time.time()
+        stand()
+        print(f"\nAll time: {gg_end - gg_start}\n")
+
+        # zxc = time.time()
+        # q1, q2 = generate_test(312)
+        # print(time.time() - zxc)
+        # print('AAAAAAA')
+        # zxc = time.time()
+        # Strassen(q1, q2)
+        # print(time.time() - zxc)
+
+        # t = 4
+        # qwe = [generate_test(16<<t), generate_test(32<<t), generate_test(64<<t), generate_test(128<<t)]
+        # funcs = [classic, recursive, Strassen]
+        # for one, two in qwe:
+        #     print('\n====================================================================================\n')
+        #     for func in funcs:
+        #         times_func = exec_time_algo(one, two, algo=func)
+        #         asd = ["\t".join([format(x, '.6f') for x in times_func])]
+        #         print(*asd, func.__name__, sep='\t')
 
 """
 Слишком много копипаста! надо будет пофиксить!!!

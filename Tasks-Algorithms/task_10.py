@@ -1,7 +1,7 @@
 from random import randint
 from copy import copy
 
-factory = lambda x, y: ["".join([chr(randint(65, 88)) for _ in range(x)]) for _ in range(y)]
+factory = lambda x, y: ["".join([chr(randint(0, 255)) for _ in range(x)]) for _ in range(y)]
 
 
 def base_test():
