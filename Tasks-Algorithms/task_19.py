@@ -97,7 +97,7 @@ def merge_k_lists(arr):
     head = c_head = ListNode()
     while len(queue):
         temp = queue.peek_top()
-        c_head.next = ListNode(temp.val)
+        c_head.next = temp
         c_head = c_head.next
         if temp.next is None:
             queue.pop_top()

@@ -1,14 +1,15 @@
 from random import randint, shuffle
+from statistics import stdev, geometric_mean
 import time
 import pprint
-import copy
+from copy import copy
 
 
 T = list[list[int]]
 t = tuple[int, int]
 lt = list[t, t]
 ltN = lt | None
-size_classic = 1
+size_classic = 16
 
 
 def base_test():
@@ -47,24 +48,21 @@ def generate_test(n):
 
 
 def exec_time_algo(*args, algo=None):
-    count_run = randint(3, 11)
-    durations = [[], [], []]
+    count_run = 5  # randint(3, 11)
+    durations = []
     for i in range(count_run):
         ts = time.time()
         algo(*args)
         fs = time.time() - ts
+        durations.append(fs)
 
-        for j in range(len(durations)):
-            durations[j].append(fs)
-
-    sample = sum(durations[0]) / count_run
-    standard = (sum([(x - sample) ** 2 for x in durations[1]]) / count_run) ** 0.5
+    sample = sum(durations) / count_run
+    standard = stdev(copy(durations))
 
     geometric = 1
-    for i in durations[2]:
+    for i in durations:
         geometric *= i
     geometric = geometric ** (1/count_run)
-
     return sample, standard, geometric
 
 
@@ -189,7 +187,7 @@ def recursive(first_matrix: T, second_matrix: T, pointers: ltN = None, ends: ltN
     lns = [(ends[0][0] - pointers[0][0], ends[0][1] - pointers[0][1]),   # sizes first matrix
            (ends[1][0] - pointers[1][0], ends[1][1] - pointers[1][1])]   # sizes second matrix
 
-    if min(lns[0]) == 1 or min(lns[1]) == 1:
+    if min(lns[0]) <= size_classic or min(lns[1]) <= size_classic:
         return classic(first_matrix, second_matrix, pointers, ends)
 
     mids_i = [pointers[0][0] + lns[0][0] // 2, pointers[1][0] + lns[1][0] // 2]  # middles lines
@@ -472,7 +470,7 @@ if __name__ == "__main__":
         # print(time.time() - zxc)
 
         # t = 4
-        # qwe = [generate_test(16<<t), generate_test(32<<t), generate_test(64<<t), generate_test(128<<t)]
+        # qwe = [generate_test(16 << t), generate_test(32 << t)]
         # funcs = [classic, recursive, Strassen]
         # for one, two in qwe:
         #     print('\n====================================================================================\n')
