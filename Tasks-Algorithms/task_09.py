@@ -75,29 +75,29 @@ def stand():
 
     name_bench = lambda x: f"size {x}x{x}"
 
-    size = 1
-    optional = 3
-    funcs = [classic, recursive, Strassen]
-    while optional:
-        durations = []
-        one, two = generate_test(size)
-        for func in funcs:
-            times_func = exec_time_algo(one, two, algo=func)
-            durations.append(times_func)
-            results[-1].append("  ".join([format(x, '.6f') for x in times_func]))
-        results[-1].append(str(size_classic))
-        results.append([])
+    while size_classic >= 8:
+        size = 1
+        optional = 1
+        funcs = [classic, recursive, Strassen]
+        while optional:
+            durations = []
+            one, two = generate_test(size)
+            for func in funcs:
+                times_func = exec_time_algo(one, two, algo=func)
+                durations.append(times_func)
+                results[-1].append("  ".join([format(x, '.6f') for x in times_func]))
+            results[-1].append(str(size_classic))
+            results.append([])
 
-        if all([durations[-1][i] < min(durations[0][i], durations[1][i]) for i in range(3)]):
-            optional -= 1
-        elif size > 256:
-            size_classic <<= 1
-        bench.append(name_bench(size))
-        size <<= 1
+            if all([durations[-1][i] < min(durations[0][i], durations[1][i]) for i in range(3)]):
+                optional -= 1
+            bench.append(name_bench(size))
+            size <<= 1
 
+        results.pop()
+        format_table(bench, algos, results)
+        size_classic >>= 1
     gg_end = time.time()
-    results.pop()
-    format_table(bench, algos, results)
 
 
 def addition_matrix2(first_matrix: T, second_matrix: T, pointers: ltN = None, ends: ltN = None,
@@ -376,7 +376,7 @@ def Strassen(first_matrix: T, second_matrix: T, pointers: ltN = None, ends: ltN 
 
 def start_Strassen(first_matrix: T, second_matrix: T) -> T:
     n = len(first_matrix)
-    k = degree2app(first_matrix) - n
+    k = app2degree(first_matrix) - n
     if k:
         temp = [0] * k
         for i in range(n):
@@ -397,7 +397,7 @@ def start_Strassen(first_matrix: T, second_matrix: T) -> T:
     return result
 
 
-def degree2app(matrix: T):
+def app2degree(matrix: T):
     ost, res, ln = 0, 1, len(matrix)
     while ln > 1:
         res *= 2
@@ -454,30 +454,12 @@ if __name__ == "__main__":
                              sign=-1)
         print(tt)
     else:
-        # base_test()
-        # test1()
+        base_test()
+        test1()
 
-        gg_start = time.time()
-        stand()
-        print(f"\nAll time: {gg_end - gg_start}\n")
-
-        # zxc = time.time()
-        # q1, q2 = generate_test(312)
-        # print(time.time() - zxc)
-        # print('AAAAAAA')
-        # zxc = time.time()
-        # Strassen(q1, q2)
-        # print(time.time() - zxc)
-
-        # t = 4
-        # qwe = [generate_test(16 << t), generate_test(32 << t)]
-        # funcs = [classic, recursive, Strassen]
-        # for one, two in qwe:
-        #     print('\n====================================================================================\n')
-        #     for func in funcs:
-        #         times_func = exec_time_algo(one, two, algo=func)
-        #         asd = ["\t".join([format(x, '.6f') for x in times_func])]
-        #         print(*asd, func.__name__, sep='\t')
+        # gg_start = time.time()
+        # stand()
+        # print(f"\nAll time: {gg_end - gg_start}\n")
 
 """
 Слишком много копипаста! надо будет пофиксить!!!

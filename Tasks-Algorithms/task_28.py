@@ -31,7 +31,7 @@ class FilterBlumIP:
         k = -log2(err)
         n = int(k / log(2) * count) + 1
         n = nextPrime(n)
-
+        print(f"{n = }")
         self.funcs = [FilterBlumIP.HashIP() for _ in range(int(k) + 1)]
         self.bits = [0 for _ in range(n)]
 
@@ -50,21 +50,23 @@ class FilterBlumIP:
 
 
 if __name__ == "__main__":
-    er, co = 0.02, 2**24
+    degree = 16
+    er, co = 0.0001, 1 << degree
     Fil = FilterBlumIP(er, co)
 
     dataset = [[z, w, y, x]  # f"{z}.{w}.{y}.{x}"
-               for x in range(255//4)
-               for y in range(255//4)
-               for w in range(255//4)
-               for z in range(255//4)]
+               for x in range(1 << (degree//4))
+               for y in range(1 << (degree//4))
+               for w in range(1 << (degree//4))
+               for z in range(1 << (degree//4))]
 
+    new_co = 0
     for elem in dataset:
+        new_co += int(Fil.lookup(elem))
         Fil.insert(elem)
 
-    new_co = sum(Fil.lookup(elem) for elem in dataset)
-    new_er = (new_co - len(dataset)) / len(dataset)
+    new_er = new_co / len(dataset)
 
-    print(len(dataset))
-    print(er, co)
-    print(new_er, new_co)
+    print("count =", len(dataset))
+    print("error =", er, "\tcount =", co)
+    print(f"n_err = {format(new_er, '.3f')}", f"\tcount_err = {new_co}")
