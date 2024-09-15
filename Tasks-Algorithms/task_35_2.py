@@ -1,4 +1,4 @@
-# https://leetcode.com/problems/redundant-connection-ii/submissions/1390249190
+# https://leetcode.com/problems/redundant-connection-ii/submissions/1391108824
 fyr = 0
 
 
@@ -67,7 +67,7 @@ def check(arr):
     # print(target, cycle)
     # print(count.values())
     if target is None:
-        return proobr(cycle) if cycle else arr[-1]
+        return proobr(cycle)
 
     x = asd.find(0)
     for i in range(len(arr)):
