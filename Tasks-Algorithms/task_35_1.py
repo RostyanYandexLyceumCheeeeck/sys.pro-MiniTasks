@@ -1,7 +1,4 @@
-# https://leetcode.com/problems/redundant-connection/submissions/1389507097
-fyr = 0
-
-
+# https://leetcode.com/problems/redundant-connection/submissions/1404330597
 class UnionFind:
     class Node:
         def __init__(self, index, father=None):
@@ -14,13 +11,10 @@ class UnionFind:
             if self._father != self:
                 self._father = self._father.father
                 self.index = self._father.index
-                self.count = min(self._father.count, fyr)
             return self._father
 
         @father.setter
         def father(self, value):
-            new_count = min(len(value) + len(self), fyr)
-            value.count = new_count
             self._father._father = value
             self.index = value.index
 
@@ -36,6 +30,10 @@ class UnionFind:
         if len(right) < len(left):
             return self.union(two_v, one_v)
 
+        if left.father == right.father:
+            return
+
+        right.father.count += len(left)
         self.vertices[one_v] = right.father
         left.father = right.father
 

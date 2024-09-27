@@ -1,7 +1,4 @@
-# https://leetcode.com/problems/redundant-connection-ii/submissions/1391108824
-fyr = 0
-
-
+# https://leetcode.com/problems/redundant-connection-ii/submissions/1404333732
 class UnionFind:
     class Node:
         def __init__(self, index, father=None):
@@ -14,13 +11,10 @@ class UnionFind:
             if self._father != self:
                 self._father = self._father.father
                 self.index = self._father.index
-                self.count = min(self._father.count, fyr)
             return self._father
 
         @father.setter
         def father(self, value):
-            new_count = min(len(value) + len(self), fyr)
-            value.count = new_count
             self._father._father = value
             self.index = value.index
 
@@ -33,8 +27,15 @@ class UnionFind:
     def union(self, one_v, two_v):
         left, right = self.vertices[one_v], self.vertices[two_v]
 
-        self.vertices[two_v] = left.father
-        right.father = left.father
+        if len(right) < len(left):
+            return self.union(two_v, one_v)
+
+        if left.father == right.father:
+            return
+
+        right.father.count += len(left)
+        self.vertices[one_v] = right.father
+        left.father = right.father
 
     def find(self, vertex):
         return self.vertices[vertex].father.index
@@ -45,9 +46,6 @@ def proobr(arr):
 
 
 def check(arr):
-    global fyr
-    fyr = len(arr)
-
     asd = UnionFind(len(arr))
     count = {i: [] for i in range(len(arr))}
     target = None
@@ -99,7 +97,7 @@ def test_4():
 
 def test_5():
     qwe = [[3, 5], [1, 3], [2, 1], [5, 4], [2, 3]]
-    return check(qwe)
+    return check(qwe)  # [2, 3]
 
 
 def test_11():
@@ -119,8 +117,8 @@ def test_11():
 
 
 if __name__ == "__main__":
-    # print(test_1())
-    # print(test_2())
-    # print(test_3())
-    # print(test_4())
+    print(test_1())
+    print(test_2())
+    print(test_3())
+    print(test_4())
     print(test_5())
