@@ -12,13 +12,14 @@ def count_i(arr, n: int):
 
 
 def solution(n):
-    arr = [0, 1, 2]
+    arr = [0] * 20
+    arr[:3] = [0, 1, 2]
+
     if n <= 2:
         return arr[n]
 
     for i in range(3, n + 1):
-        arr.append(count_i(arr, i))
-
+        arr[i] = count_i(arr, i)
     return arr[n]
 
 

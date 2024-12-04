@@ -1,4 +1,5 @@
 # https://leetcode.com/problems/redundant-connection-ii/submissions/1404333732
+
 class UnionFind:
     class Node:
         def __init__(self, index, father=None):

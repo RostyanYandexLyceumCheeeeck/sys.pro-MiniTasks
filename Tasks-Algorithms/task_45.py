@@ -1,7 +1,6 @@
-# https://leetcode.com/problems/create-sorted-array-through-instructions/submissions/1453054070
+# https://leetcode.com/problems/create-sorted-array-through-instructions/submissions/1470498845
 
-
-from bisect import bisect_left, bisect_right
+ABSOLUTE = 10 ** 9 + 7
 
 
 def f(x):
@@ -13,39 +12,36 @@ def g(x):
 
 
 class FenwickTree:
-    def __init__(self, arr):
-        self.arr: list[list] = []
-        self.build_init(arr)
+    def __init__(self, size):
+        self.arr: list = [0] * size
 
-    def build_init(self, arr):
-        self.arr = [sorted(arr[f(i):i + 1]) for i in range(len(arr))]
-
-    def get_index(self, pos, value, func):
+    def prefix_sum(self, curr_pos):
         res = 0
-        curr_pos = pos
         while curr_pos >= 0:
-            target_arr = self.arr[curr_pos]
-            # res += min(bisect_left(target_arr, value),
-            #            len(target_arr) - bisect_right(target_arr, value))
-            res += func(target_arr, value)
+            res += self.arr[curr_pos]
             curr_pos = f(curr_pos) - 1
         return res
 
-    def sum(self, pos, value):
-        return min(
-            self.get_index(pos, value, bisect_left),
-            self.get_index(pos, value, lambda mas, x: len(mas) - bisect_right(mas, x))
-        )
+    def sum_range(self, start, end):
+        return self.prefix_sum(end) - self.prefix_sum(start)
+
+    def increment(self, pos):
+        while pos < len(self.arr):
+            self.arr[pos] += 1
+            pos = g(pos)
 
 
 def test(arr, ans):
-    ft = FenwickTree(arr)
+    size = max(arr)
+    ft = FenwickTree(size)
     res = 0
 
-    for i in range(len(arr)):
-        res += ft.sum(i, arr[i])
-    res %= 10 ** 9 + 7
-    # print(res)
+    for x in arr:
+        x -= 1
+        res += min(ft.prefix_sum(x - 1), ft.sum_range(x, size - 1))
+        res %= ABSOLUTE
+        ft.increment(x)
+
     assert res == ans
 
 
@@ -54,7 +50,7 @@ def test_1():
 
 
 def test_2():
-    test([1, 2, 3, 6, 5, 4, 0, 0], 3)
+    test([2, 3, 4, 7, 6, 5, 1, 1], 3)
 
 
 def test_3():

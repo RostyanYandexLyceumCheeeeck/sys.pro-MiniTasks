@@ -1,140 +1,96 @@
-# https://leetcode.com/problems/count-of-smaller-numbers-after-self/submissions/1445329046
-
-import math
-from copy import deepcopy
+# https://leetcode.com/problems/count-of-smaller-numbers-after-self/submissions/1466527793
+from bisect import bisect_left
 
 
-def num2up(x):
-    y = 1
-    while y < x:
-        y <<= 1
-    return y
+class Node:
+    def __init__(self, start, end, arr):
+        self.arr = arr
+        self.end = end
+        self.left = None
+        self.right = None
+        self.start = start
 
+        self.index_left = None
+        self.index_right = None
+        self.build_init(start, end, arr)
 
-class Value:
-    def __init__(self, value, count_left=0, count_right=0):
-        self.value = value
-        self.count_left = count_left
-        self.count_right = count_right
+    def build_init(self, l, r, arr):
+        self.arr = arr[l:r+1]
+        if l == r:
+            return
 
-    def __eq__(self, other):
-        return self.value == other.value
+        m = (self.start + self.end) >> 1
+        self.left = Node(l, m, arr)
+        self.right = Node(m + 1, r, arr)
+        self.index_left = [0] * (r - l + 1)
+        self.index_right = [0] * (r - l + 1)
+        self.merge_child()
 
-    def __le__(self, other):
-        return self.value <= other.value
-
-    def __lt__(self, other):
-        return self.value < other.value
-
-
-class Root:
-    def __init__(self, mas, left=None, right=None):
-        self.arr: list[Value] = mas
-        # self.value = value
-        self.left = left
-        self.right = right
-
-    @staticmethod
-    def merge(left, right):
-        mas: list[Value] = []
+    def merge_child(self):
         i, j = 0, 0
-        while i < len(left.arr) and j < len(right.arr):
-            if left.arr[i] < right.arr[j]:
-                mas.append(Value(left.arr[i].value, i, j))
-                i += 1
-            else:
-                mas.append(Value(right.arr[j].value, i, j))
-                j += 1
+        first = self.left.arr if self.left else []
+        second = self.right.arr if self.right else []
 
-            if len(mas) > 1 and mas[-1].value == mas[-2].value:
-                mas[-1].count_left = mas[-2].count_left
-                mas[-1].count_right = mas[-2].count_right
+        while i < len(first) and j < len(second):
+            flag = first[i] < second[j]
+            k = i + j
+            self.arr[k] = first[i] if flag else second[j]
+            self.index_left[k] = i
+            self.index_right[k] = j
+            i += flag
+            j += not flag
 
-        while i < len(left.arr):
-            mas.append(Value(left.arr[i].value, i, j))
+        while i < len(first):
+            k = i + j
+            self.arr[k] = first[i]
+            self.index_left[k] = i
+            self.index_right[k] = j
             i += 1
-            if len(mas) > 1 and mas[-1].value == mas[-2].value:
-                mas[-1].count_left = mas[-2].count_left
-                mas[-1].count_right = mas[-2].count_right
 
-        while j < len(right.arr):
-            mas.append(Value(right.arr[j].value, i, j))
+        while j < len(second):
+            k = i + j
+            self.arr[k] = second[j]
+            self.index_left[k] = i
+            self.index_right[k] = j
             j += 1
-            if len(mas) > 1 and mas[-1].value == mas[-2].value:
-                mas[-1].count_left = mas[-2].count_left
-                mas[-1].count_right = mas[-2].count_right
 
-        return Root(mas, left, right)
-
-    def bisect(self, x):
-        vx = Value(x)
-        if self.arr[0] >= vx:
-            return 0
-
-        left, right = 0, len(self.arr) - 1
-        target = (left + right) // 2
-        while left < target < right:
-            if self.arr[target] < vx:
-                left = target
-            else:
-                right = target
-            target = (left + right) // 2
-
-        return left if self.arr[left] >= vx else (target if self.arr[target] >= vx else right)
-        # return right if self.arr[right] == vx else (target if self.arr[target] == vx else left)
+        for t in range(1, i + j):
+            if self.arr[t] == self.arr[t - 1]:
+                self.index_left[t] = self.index_left[t - 1]
+                self.index_right[t] = self.index_right[t - 1]
 
 
 class SegmentTree:
-    def __init__(self, arr: list):
-        k = num2up(len(arr))
-        self.root = self.merge_sort(arr + [math.inf] * (k - len(arr)))
-        # self.build_init()
+    def __init__(self, arr):
+        self.root = Node(0, len(arr) - 1, arr)
 
-    def build_init(self, arr):
-        pass
+    def gte(self, l, r, target):
+        ind = bisect_left(self.root.arr, target)
+        return self.gte_rec(self.root, l, r, ind)
 
-    def merge_sort(self, arr):
-        if not arr:
-            return
-        if len(arr) == 1:
-            return Root([Value(arr[0])])
-
-        left = self.merge_sort(arr[:len(arr)//2])
-        right = self.merge_sort(arr[len(arr)//2:])
-        return Root.merge(left, right)
-
-    def get_k(self, left, right, target):
-        ind_up = self.root.bisect(target)
-        return self.get_k_rec(self.root, 0, len(self.root.arr) - 1, left, right, ind_up)
-
-    def get_k_rec(self, target_root: Root, v_left, v_right, left, right, ind_up):
-        if left == v_left and right == v_right:
-            return ind_up
-        if target_root and ind_up == len(target_root.arr):
-            return right - left
-        if not ind_up:
+    def gte_rec(self, node: Node, l, r, ind):
+        if l == node.start and r == node.end:
+            return ind
+        if ind >= len(node.arr):
             return 0
-        # ind_up = min(ind_up, len(target_root.arr) - 1)
 
-        v_middle = (v_left + v_right) // 2
         res = 0
-
-        if left <= v_middle:
-            res += self.get_k_rec(target_root.left, v_left, v_middle, left, min(right, v_middle),
-                                  target_root.arr[ind_up].count_left)
-        if right > v_middle:
-            res += self.get_k_rec(target_root.right, v_middle + 1, v_right, max(left, v_middle + 1), right,
-                                  target_root.arr[ind_up].count_right)
+        m = (node.start + node.end) >> 1
+        if l <= m:
+            res += self.gte_rec(node.left, l, min(r, m), node.index_left[ind])
+        if r > m:
+            res += self.gte_rec(node.right, max(l, m + 1), r, node.index_right[ind])
         return res
 
 
 def test_1():
     arr = [5, 2, 6, 1]
     tree = SegmentTree(arr)
-    res = [tree.get_k(i + 1, len(arr) - 1, arr[i]) for i in range(len(arr))]
+    res = [tree.gte(i + 1, len(arr) - 1, arr[i]) for i in range(len(arr))]
 
-    print(res)
+    # print(res)
     assert res == [2, 1, 1, 0]
+
 
 """
 1 2 5 6
@@ -142,7 +98,6 @@ def test_1():
 5 | 2 || 6 | 1
 
 """
-
 
 if __name__ == "__main__":
     test_1()

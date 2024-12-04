@@ -130,10 +130,10 @@ class ImTreap:
     def split_by_size(imt, k):
         if not imt:
             return None, None
-        if not k:
+        if k <= 0:
             return None, imt
-        # if k >= imt.root.count:
-        #     return imt, None
+        if k >= imt.root.count:
+            return imt, None
 
         cl = imt.root.left.count if imt.root.left else 0
 
@@ -155,23 +155,40 @@ class ImTreap:
             rr.root.father = None
         return imt, rr
 
-    def insert(self, val, pos, priority=None):
-        left, right = ImTreap.split_by_size(self, pos)
+    @staticmethod
+    def insert(imt, val, pos, priority=None):
         center = ImTreap(Root(pos, priority, val))
+        return ImTreap.__insert_many(imt, pos, center)
+
+    @staticmethod
+    def __insert_many(imt, pos, center):
+        left, right = ImTreap.split_by_size(imt, pos)
         return ImTreap.merge(ImTreap.merge(left, center), right)
 
-    def erase(self, pos, count=1):
+    @staticmethod
+    def erase(imt, pos, count=1, flag_get_del=False):
         if count <= 0:
-            return self
+            return imt
 
-        left, right = ImTreap.split_by_size(self, pos - 1)
+        left, right = ImTreap.split_by_size(imt, pos)
         rl, rr = ImTreap.split_by_size(right, count)
-        return ImTreap.merge(left, rr)
+        res = ImTreap.merge(left, rr)
 
-    def sum(self, start, end):
-        full = self.root.summary
-        left, right = self.erase(start, end - start + 1)
-        return full - left.root.summary - right.root.summary
+        if flag_get_del:
+            return res, rl
+        return res
+
+    @staticmethod
+    def sum(imt, start, end):
+        if not imt or not imt.root:
+            return 0
+
+        full = imt.root.summary
+        left, center = ImTreap.erase(imt, start, end - start + 1, True)
+        result = full - (left.root.summary if left and left.root else 0)
+
+        ImTreap.__insert_many(left, start, center)
+        return result
 
     def imtreap_to_arr(self, result: list = None):
         return self.root.to_arr(result)
@@ -231,8 +248,8 @@ def test3():
 
     qwe = ImTreap()
     qwe.sort_arr_to_imtreap(arr)
-    qwe.insert(one[-1], one[0], one[1])
-    qwe.insert(two[-1], two[0], two[1])
+    qwe.insert(qwe, one[-1], one[0], one[1])
+    qwe.insert(qwe, two[-1], two[0], two[1])
 
     first, second = ImTreap.split_by_size(qwe, one[0] + 1)
     answer_first = [x[-1] for x in (arr[:one[0]] + [one])]
@@ -269,10 +286,24 @@ def test4():
     assert asd.root.summary == sum(x[-1] for x in arr[:k])
     assert zxc.root.summary == sum(x[-1] for x in arr[k:])
 
+    save_c_asd = asd.root.count
+    save_c_zxc = zxc.root.count
+
+    assert save_c_asd == k
+    assert save_c_zxc == len(arr) - k
+
+    def check_sum(imt, save_c_imt, shift=0):
+        for start in range(save_c_imt):
+            for end in range(start, save_c_imt):
+                assert ImTreap.sum(imt, start, end) == sum(x[-1] for x in arr[start + shift:end + shift + 1])
+        assert imt.root.count == save_c_imt
+
+    check_sum(asd, save_c_asd)
+    check_sum(zxc, save_c_zxc, k)
+
 
 if __name__ == "__main__":
     test1()
     test2()
     test3()
     test4()
-
