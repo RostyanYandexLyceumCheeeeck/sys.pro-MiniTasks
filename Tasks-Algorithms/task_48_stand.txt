@@ -1,0 +1,13 @@
+|     Benchmark     | Bruteforce | Bellman-Held_karp |
+|----------------------------------------------------|
+| full graph: 02x02 |    0.0     |        0.0        |
+| full graph: 03x03 |    0.0     |        0.0        |
+| full graph: 04x04 |    0.0     |        0.0        |
+| full graph: 05x05 |    0.0     |        0.0        |
+| full graph: 06x06 |    0.0     |        0.0        |
+| full graph: 07x07 |    0.0     |        0.0        |
+| full graph: 08x08 |  0.015696  |        0.0        |
+| full graph: 09x09 |  0.051005  |      0.011508     |
+| full graph: 10x10 |  0.598204  |        0.0        |
+| full graph: 11x11 |  6.305776  |        0.0        |
+| full graph: 12x12 | 72.192886  |      0.015135     |
