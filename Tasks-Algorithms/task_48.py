@@ -53,7 +53,7 @@ def collect_statistic():
     bench = []
     algos = ['Bruteforce', "Bellman-Held_karp"]
     times = []
-    support_collect_statistic(2, 13, bench, algos, times)
+    support_collect_statistic(2, 14, bench, algos, times)
     # support_collect_statistic(14, 15, bench, algos, times)
     format_table(bench, algos, times)
 

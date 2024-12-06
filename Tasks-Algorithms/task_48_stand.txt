@@ -6,8 +6,9 @@
 | full graph: 05x05 |    0.0     |        0.0        |
 | full graph: 06x06 |    0.0     |        0.0        |
 | full graph: 07x07 |    0.0     |        0.0        |
-| full graph: 08x08 |  0.015696  |        0.0        |
-| full graph: 09x09 |  0.051005  |      0.011508     |
-| full graph: 10x10 |  0.598204  |        0.0        |
-| full graph: 11x11 |  6.305776  |        0.0        |
-| full graph: 12x12 | 72.192886  |      0.015135     |
+| full graph: 08x08 |  0.022234  |        0.0        |
+| full graph: 09x09 |  0.072028  |        0.0        |
+| full graph: 10x10 |  0.616133  |      0.01302      |
+| full graph: 11x11 |  5.908243  |        0.0        |
+| full graph: 12x12 | 65.787888  |      0.022135     |
+| full graph: 13x13 | 810.119804 |      0.044766     |
