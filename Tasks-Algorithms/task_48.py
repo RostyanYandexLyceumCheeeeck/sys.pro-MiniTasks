@@ -5,8 +5,8 @@ from itertools import permutations, combinations
 
 
 T = list | tuple
-FILE = "task_48_stand.txt"
-# FILE = None
+# FILE = "task_48_stand.txt"
+FILE = None
 
 
 def generate_graph(n: int):
